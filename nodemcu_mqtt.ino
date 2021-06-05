@@ -2,7 +2,7 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 //Define pin sensor
-#define PINLAMP D1
+#define PINLAMP D0
 
 
 // Wifi Connection Config
@@ -52,7 +52,9 @@ void callback(char* topic, byte* payload, unsigned int length) {
   }
   // Logic for on/off a lamp
   if (tempPayload == "lamp/on") {
-    Serial.println("Jalan");
+    pinmode(PINLAMP,OUTPUT);
+  }else{
+    pinmode(PINLAMP,INPUT);
   }
   
 }
