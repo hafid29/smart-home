@@ -1,5 +1,9 @@
+#include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
+//Define pin sensor
+#define PINLAMP D1
+
 
 // Wifi Connection Config
 const char* wlanName = "KEDAI DJENGGOT $$$";
@@ -16,6 +20,9 @@ PubSubClient client(espClient);
 
 void callback(char* topic, byte* payload, unsigned int length);
 
+void sensorLogic() {
+}
+
 void reconnect() {
   //  Reconnect if connection lost
   Serial.println("In reconnect...");
@@ -25,6 +32,7 @@ void reconnect() {
     // Attempt to connect
     if (client.connect("smart_lamp", brokerUsername, brokerPassword)) {
       Serial.println("connected");
+      client.subscribe("smartHome");
     } else {
       Serial.print("failed, ");
       Serial.print(client.state());
@@ -39,14 +47,12 @@ void reconnect() {
 void callback(char* topic, byte* payload, unsigned int length) {
   String tempPayload;
   for (int i = 0; i < length; i++) {
-    //Show paylod to serial monitor
-    Serial.print((char)payload[i]);
-    //store payload to tempPayload
+   //store payload to tempPayload
    tempPayload += (char)payload[i]; 
   }
   // Logic for on/off a lamp
   if (tempPayload == "lamp/on") {
-    Serial.println("Yuhu Nyala");
+    Serial.println("Jalan");
   }
   
 }
@@ -54,12 +60,13 @@ void callback(char* topic, byte* payload, unsigned int length) {
 void setup() {
   //  Initial Serial
   Serial.begin(115200);
-  
+  pinMode(PINLAMP,OUTPUT);
+  digitalWrite(PINLAMP,HIGH);  
   //  Declare wifi config
   WiFi.begin(wlanName,wlanPassword);
   
   while (WiFi.status() != WL_CONNECTED )  {
-  // Delay for get wifi status
+    // Delay for get wifi status
     delay(500);
     Serial.println("Connecting...");
   }
@@ -68,16 +75,11 @@ void setup() {
   //Set Server Broker
   client.setServer(brokerAddress,1883);
   client.setCallback(callback);
-  client.subscribe("smartHome");
 }
 
 void loop() {
-  //if mqtt state not conected will reconnect
   if (!client.connected()) {
-    //Method For reconnect
-    Serial.print("");
-    Serial.print("Broker Status : ");
-    Serial.print(client.state());
+   reconnect(); 
   }
-
+  client.loop();
 }
