@@ -52,9 +52,9 @@ void callback(char* topic, byte* payload, unsigned int length) {
   }
   // Logic for on/off a lamp
   if (tempPayload == "lamp/on") {
-    pinmode(PINLAMP,OUTPUT);
+    pinMode(PINLAMP,OUTPUT);
   }else{
-    pinmode(PINLAMP,INPUT);
+    pinMode(PINLAMP,INPUT);
   }
   
 }
