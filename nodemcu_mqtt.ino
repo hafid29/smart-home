@@ -2,13 +2,9 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 
-
-//Define pin sensor
-#define PINLAMP 16
-
 // Wifi Connection Config
 const char* wlanName = "KEDAI DJENGGOT $$$";
-const char* wlanPassword = "segopeceldit";
+const char* wlanPassword = "malamselasa";
 
 // Define Variable for mqtt broker
 const char* brokerAddress = "ec2-3-86-238-120.compute-1.amazonaws.com";
@@ -32,6 +28,7 @@ void reconnect() {
     if (client.connect("smart_lamp", brokerUsername, brokerPassword)) {
       Serial.println("connected");
       client.subscribe("smartHome");
+      client.subscribe("dimmingLamp");
     } else {
       Serial.print("failed, ");
       Serial.print(client.state());
@@ -44,32 +41,19 @@ void reconnect() {
 
 //Broker callback
 void callback(char* topic, byte* payload, unsigned int length) {
-  String tempPayload;
   for (int i = 0; i < length; i++) {
-   //store payload to tempPayload
-   tempPayload += (char)payload[i]; 
-  }
-  // Logic for on/off a lamp
-  if (tempPayload == "nyala") {
-    Serial.println("==================");
-    Serial.println("Lamp Status: ON");
-    Serial.println("Topic Message "+tempPayload);
-    Serial.println("==================");
-    pinMode(PINLAMP,OUTPUT);
-  }
-  if (tempPayload == "mati") {
-    Serial.println("==================");
-    Serial.println("Lamp Status: OFF");
-    Serial.println("Topic Message "+tempPayload);
-    Serial.println("==================");
-    pinMode(PINLAMP,INPUT);
-  }
-  if (tempPayload == "") {
-    Serial.println("==================");
-    Serial.println("Error");
-    Serial.println("Topic Message Perintah Tidak Diketahui");
-    Serial.println("==================");
-    pinMode(PINLAMP,INPUT);
+   // validate topic name and
+   // Send data to serial
+   if (strcmp(topic,"smartHome") == 0 ) {
+    Serial.write(payload[i]);
+    Serial.write("");
+   }
+   
+   if (strcmp(topic,"dimmingLamp") == 0 ) {
+    Serial.write(payload[i]);
+    Serial.write("");
+   }
+   
   }
 }
 
